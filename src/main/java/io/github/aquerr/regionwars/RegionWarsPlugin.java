@@ -15,7 +15,6 @@ public final class RegionWarsPlugin extends JavaPlugin
         // Plugin startup logic
 
         setupCommandSystem();
-
     }
 
     @Override

@@ -1,8 +1,8 @@
-name: Region Wars
+name: RegionWars
 version: '${version}'
 main: io.github.aquerr.regionwars.RegionWarsPlugin
 api-version: 1.17
-prefix: [ RW ]
+prefix: RW
 load: STARTUP
 authors: [ Aquerr ]
 description: Minecraft plugin that lets you define regions where players can fight.

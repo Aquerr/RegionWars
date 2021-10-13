@@ -13,9 +13,9 @@ public abstract class RegionWarsCommand
     protected Set<String> aliases;
     protected String permission;
     protected String usageMessage;
-    protected Map<List<String>, RegionWarsCommand> childCommands;
+    protected Map<Set<String>, RegionWarsCommand> childCommands;
 
-    protected RegionWarsCommand(String name, Set<String> aliases, String description, String permission, String usageMessage, Map<List<String>, RegionWarsCommand> childCommands)
+    protected RegionWarsCommand(String name, Set<String> aliases, String description, String permission, String usageMessage, Map<Set<String>, RegionWarsCommand> childCommands)
     {
         this.name = name;
         this.aliases = aliases;
@@ -54,9 +54,14 @@ public abstract class RegionWarsCommand
         return usageMessage;
     }
 
-    public Map<List<String>, RegionWarsCommand> getChildCommands()
+    public Map<Set<String>, RegionWarsCommand> getChildCommands()
     {
         return childCommands;
+    }
+
+    protected void addChildCommand(Set<String> aliases, RegionWarsCommand regionWarsCommand)
+    {
+        this.childCommands.put(aliases, regionWarsCommand);
     }
 
     public boolean hasPermission(CommandSender sender)
