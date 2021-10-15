@@ -24,6 +24,7 @@ public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
     {
         commandsList.add(new VersionCommand());
         commandsList.add(new HelpCommand());
+        commandsList.add(new WandCommand());
     }
 
     @Override
