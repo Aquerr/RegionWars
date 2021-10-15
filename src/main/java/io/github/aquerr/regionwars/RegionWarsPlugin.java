@@ -28,7 +28,7 @@ public final class RegionWarsPlugin extends JavaPlugin
     {
         RegionWarsCommandManager regionWarsCommandManager = new RegionWarsCommandManager(this);
         regionWarsCommandManager.init();
-        PluginCommand regionWarsCommand = getCommand("regionwars");
+        PluginCommand regionWarsCommand = getCommand("RegionWars");
         regionWarsCommand.setTabCompleter(regionWarsCommandManager);
         regionWarsCommand.setExecutor(regionWarsCommandManager);
     }
