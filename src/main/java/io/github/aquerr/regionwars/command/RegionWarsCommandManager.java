@@ -9,6 +9,7 @@ import org.bukkit.command.TabCompleter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
 {
@@ -30,11 +31,24 @@ public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args)
     {
-        String commandAliasToExecute = args.length > 0 ? args[0] : "help";
-        return commandsList.getCommandForAlias(commandAliasToExecute)
-                .filter(regionWarsCommand -> regionWarsCommand.hasPermission(commandSender))
-                .map(regionWarsCommand -> regionWarsCommand.execute(commandSender, args))
-                .orElse(Boolean.FALSE);
+        try
+        {
+            String commandAliasToExecute = args.length > 0 ? args[0] : "help";
+            Optional<RegionWarsCommand> optionalRegionWarsCommand = commandsList.getCommandForAlias(commandAliasToExecute);
+            if (optionalRegionWarsCommand.isEmpty())
+                return false;
+
+            RegionWarsCommand regionWarsCommand = optionalRegionWarsCommand.get();
+            if (!regionWarsCommand.hasPermission(commandSender))
+                return false;
+
+            return regionWarsCommand.execute(commandSender, args);
+        }
+        catch (CommandException exception)
+        {
+            commandSender.sendMessage(RegionWarsPlugin.ERROR_PREFIX + exception.getLocalizedMessage());
+        }
+        return true;
     }
 
     @Override
@@ -47,6 +61,9 @@ public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
                     .map(regionWarsCommand -> regionWarsCommand.tabComplete(commandSender, args))
                     .orElse(Collections.emptyList());
         }
-        return Collections.emptyList();
+        else
+        {
+            return commandsList.getCommandsAliases().stream().toList();
+        }
     }
 }

@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class RegionWarsPlugin extends JavaPlugin
 {
     public static final String PLUGIN_PREFIX = ChatColor.GOLD + "[RW] " + ChatColor.RESET;
+    public static final String ERROR_PREFIX = ChatColor.DARK_RED + "[RW] ";
 
     @Override
     public void onEnable()

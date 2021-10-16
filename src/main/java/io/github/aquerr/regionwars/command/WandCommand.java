@@ -1,6 +1,7 @@
 package io.github.aquerr.regionwars.command;
 
 import io.github.aquerr.regionwars.PluginPermissions;
+import io.github.aquerr.regionwars.RegionWarsPlugin;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -26,12 +27,10 @@ public class WandCommand extends RegionWarsCommand
     }
 
     @Override
-    public boolean execute(CommandSender commandSender, String[] arguments)
+    public boolean execute(CommandSender commandSender, String[] arguments) throws CommandException
     {
         if (!(commandSender instanceof Player))
-        {
-            return false;
-        }
+            throw new CommandException(RegionWarsPlugin.PLUGIN_PREFIX + "Only in-game players can use this command!");
 
         ItemStack itemStack = new ItemStack(Material.GOLDEN_AXE, 1);
         ItemMeta itemMeta = itemStack.getItemMeta();

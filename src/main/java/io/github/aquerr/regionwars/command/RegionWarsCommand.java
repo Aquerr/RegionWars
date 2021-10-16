@@ -25,7 +25,7 @@ public abstract class RegionWarsCommand
         this.childCommands = childCommands;
     }
 
-    public abstract boolean execute(CommandSender commandSender, String[] arguments);
+    public abstract boolean execute(CommandSender commandSender, String[] arguments) throws CommandException;
 
     public abstract List<String> tabComplete(CommandSender commandSender, String[] arguments);
 
