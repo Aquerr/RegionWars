@@ -3,6 +3,8 @@ package io.github.aquerr.regionwars.config;
 import io.github.aquerr.regionwars.storage.StorageType;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.io.IOException;
+
 public class ConfigurationImpl implements Configuration
 {
     private final FileConfiguration fileConfiguration;
@@ -23,14 +25,16 @@ public class ConfigurationImpl implements Configuration
     @Override
     public void reload()
     {
-        this.languageFileName = this.fileConfiguration.getString("language-file");
-        this.selectedStorageType = StorageType.findByName(this.fileConfiguration.getString("storage.type"))
+        fileConfiguration.options().copyDefaults(true);
+
+        this.languageFileName = this.fileConfiguration.getString("language-file", "en-US.yml");
+        this.selectedStorageType = StorageType.findByName(this.fileConfiguration.getString("storage.type", "sqlite"))
                 .orElseThrow(() -> new IllegalArgumentException("Selected storage type is invalid!"));
 
-        this.databaseUsername = this.fileConfiguration.getString("storage.username");
-        this.databasePassword = this.fileConfiguration.getString("storage.password");
-        this.databaseName = this.fileConfiguration.getString("storage.database-name");
-        this.databaseUrl = this.fileConfiguration.getString("storage.database-url");
+        this.databaseUsername = this.fileConfiguration.getString("storage.username", "regionwars");
+        this.databasePassword = this.fileConfiguration.getString("storage.password", "changeit");
+        this.databaseName = this.fileConfiguration.getString("storage.database-name", "regionwars");
+        this.databaseUrl = this.fileConfiguration.getString("storage.database-url", "localhost:3306/");
     }
 
 
