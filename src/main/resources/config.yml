@@ -16,3 +16,18 @@
 
 # Language file that will be loaded by the plugin. Default: en-US.yml
 language-file: en-US.yml
+
+# Storage section
+storage:
+  # Specifies storage type that will be used by the plugin. Default: sqlite
+  # Available storage types: sqlite
+  type: sqlite
+
+  # Specifies the username used to connect to the database. Default: regionwars
+  username: regionwars
+  # Specifies the password used to connect to the database. Default: changeit
+  password: changeit
+  # The name of the database
+  database-name: regionwars
+  # The url of the database. It will be concatenated with database-name like "database-url+database-name"
+  database-url: localhost:3306/
