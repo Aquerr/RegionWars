@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 public final class Vector3i
 {
-    private static final Pattern VECTOR3I_PATTERN = Pattern.compile("-*\\d*");
+    private static final Pattern VECTOR3I_PATTERN = Pattern.compile("\\(-?\\d, *-?\\d, *-?\\d\\)");
+    private static final Pattern VECTOR3I_NUMBERS_PATTERN = Pattern.compile("-?\\d+");
 
     private final int x;
     private final int y;
@@ -41,10 +42,14 @@ public final class Vector3i
      * Expected string format is: "(x, y, z)"
      * @param vector3i as string
      * @return instance of Vector3i
+     * @throws IllegalArgumentException if string is not Vector3i
      */
     public static Vector3i from(String vector3i)
     {
-        List<String> positions = VECTOR3I_PATTERN.matcher(vector3i).results()
+        if(!VECTOR3I_PATTERN.matcher(vector3i).matches())
+            throw new IllegalArgumentException("'" + vector3i + "' does not match Vector3i pattern!");
+
+        List<String> positions = VECTOR3I_NUMBERS_PATTERN.matcher(vector3i).results()
                 .map(MatchResult::group)
                 .toList();
         int x = Integer.parseInt(positions.get(0));

@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import io.github.aquerr.regionwars.model.Region;
 import io.github.aquerr.regionwars.storage.RegionStorage;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +30,14 @@ public class RegionServiceImpl implements RegionService
                         return regionStorage.getRegion(key);
                     }
                 });
+
+        this.regionStorage.getRegions().forEach(region -> this.nameRegionCache.put(region.getName().toLowerCase(), region));
+    }
+
+    @Override
+    public List<Region> getRegions()
+    {
+        return List.copyOf(this.nameRegionCache.asMap().values());
     }
 
     @Override
@@ -37,7 +46,7 @@ public class RegionServiceImpl implements RegionService
         Region region = null;
         try
         {
-            region = this.nameRegionCache.get(name);
+            region = this.nameRegionCache.get(name.toLowerCase());
         }
         catch (ExecutionException e)
         {
@@ -49,18 +58,18 @@ public class RegionServiceImpl implements RegionService
     @Override
     public void saveRegion(Region region)
     {
-        this.nameRegionCache.put(region.getName(), region);
+        this.nameRegionCache.put(region.getName().toLowerCase(), region);
         CompletableFuture.runAsync(() -> this.regionStorage.saveRegion(region));
     }
 
     @Override
     public void deleteRegion(String name)
     {
-        Region region = this.nameRegionCache.getIfPresent(name);
+        Region region = this.nameRegionCache.getIfPresent(name.toLowerCase());
 
         if (region != null)
         {
-            this.nameRegionCache.invalidate(name);
+            this.nameRegionCache.invalidate(name.toLowerCase());
         }
 
         CompletableFuture.runAsync(() -> this.regionStorage.deleteRegion(name));

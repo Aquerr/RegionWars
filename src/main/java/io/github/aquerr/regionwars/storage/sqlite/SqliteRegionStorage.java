@@ -9,10 +9,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class SqliteRegionStorage implements RegionStorage
 {
+    private static final String SELECT_ALL_REGIONS = "SELECT * FROM region";
     private static final String SELECT_REGION_WHERE_NAME = "SELECT * FROM region WHERE name = ?";
     private static final String INSERT_REGION = "INSERT INTO region (name, first_position, second_position, active) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_REGION_WHERE_NAME = "UPDATE region SET name=?, first_position=?, second_position=?, active=? WHERE name=?";
@@ -23,6 +26,32 @@ public class SqliteRegionStorage implements RegionStorage
     public SqliteRegionStorage(Database database)
     {
         this.database = database;
+    }
+
+    @Override
+    public List<Region> getRegions()
+    {
+        final List<Region> regions = new ArrayList<>();
+        try(Connection connection = this.database.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_REGIONS))
+        {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next())
+            {
+                String name = resultSet.getString("name");
+                UUID worldUUID = UUID.fromString(resultSet.getString("world_uuid"));
+                String firstPosition = resultSet.getString("first_position");
+                String secondPosition = resultSet.getString("second_position");
+                boolean active = resultSet.getBoolean("active");
+                Region region = new Region(name, worldUUID, Vector3i.from(firstPosition), Vector3i.from(secondPosition), active);
+                regions.add(region);
+            }
+        }
+        catch (SQLException exception)
+        {
+            exception.printStackTrace();
+        }
+        return regions;
     }
 
     @Override
@@ -37,8 +66,8 @@ public class SqliteRegionStorage implements RegionStorage
             {
                 name = resultSet.getString("name");
                 UUID worldUUID = UUID.fromString(resultSet.getString("world_uuid"));
-                String firstPosition = resultSet.getString("firstPosition");
-                String secondPosition = resultSet.getString("secondPosition");
+                String firstPosition = resultSet.getString("first_position");
+                String secondPosition = resultSet.getString("second_position");
                 boolean active = resultSet.getBoolean("active");
                 return new Region(name, worldUUID, Vector3i.from(firstPosition), Vector3i.from(secondPosition), active);
             }
