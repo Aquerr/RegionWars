@@ -2,6 +2,7 @@ package io.github.aquerr.regionwars.command;
 
 
 import io.github.aquerr.regionwars.RegionWarsPlugin;
+import io.github.aquerr.regionwars.command.region.ListRegionsCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,6 +11,7 @@ import org.bukkit.command.TabCompleter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
 {
@@ -26,6 +28,7 @@ public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
         commandsList.add(new VersionCommand());
         commandsList.add(new HelpCommand());
         commandsList.add(new WandCommand());
+        commandsList.add(new ListRegionsCommand(plugin.getRegionService()));
     }
 
     @Override
@@ -56,10 +59,9 @@ public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
     {
         if (args.length > 0)
         {
-            return commandsList.getCommandForAlias(args[0])
-                    .filter(regionWarsCommand -> regionWarsCommand.hasPermission(commandSender))
-                    .map(regionWarsCommand -> regionWarsCommand.tabComplete(commandSender, args))
-                    .orElse(Collections.emptyList());
+            return commandsList.getCommandsAliases().stream()
+                    .filter(subCommandAlias -> subCommandAlias.startsWith(args[0]))
+                    .toList();
         }
         else
         {

@@ -56,6 +56,11 @@ public final class RegionWarsPlugin extends JavaPlugin
         return configuration;
     }
 
+    public RegionService getRegionService()
+    {
+        return regionService;
+    }
+
     private void setupStorage()
     {
         this.storageManager = new StorageManagerImpl(this);
