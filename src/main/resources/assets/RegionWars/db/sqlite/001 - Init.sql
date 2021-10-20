@@ -9,3 +9,5 @@ CREATE TABLE region (
     second_position TEXT NOT NULL,
     active INT NOT NULL DEFAULT '0'
 );
+
+INSERT INTO version (version) VALUES (1);
