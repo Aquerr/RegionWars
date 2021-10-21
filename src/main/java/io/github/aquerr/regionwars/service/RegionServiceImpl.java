@@ -3,6 +3,7 @@ package io.github.aquerr.regionwars.service;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import io.github.aquerr.regionwars.exception.RegionNotFoundException;
 import io.github.aquerr.regionwars.model.Region;
 import io.github.aquerr.regionwars.storage.RegionStorage;
 
@@ -27,7 +28,7 @@ public class RegionServiceImpl implements RegionService
                     @Override
                     public Region load(String key) throws Exception
                     {
-                        return regionStorage.getRegion(key);
+                        return Optional.ofNullable(regionStorage.getRegion(key)).orElseThrow(() -> new RegionNotFoundException("No such region in db."));
                     }
                 });
 
@@ -50,7 +51,8 @@ public class RegionServiceImpl implements RegionService
         }
         catch (ExecutionException e)
         {
-            e.printStackTrace();
+            if (!(e.getCause() instanceof RegionNotFoundException))
+                e.printStackTrace();
         }
         return Optional.ofNullable(region);
     }

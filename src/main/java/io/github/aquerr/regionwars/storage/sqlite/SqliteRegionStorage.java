@@ -65,6 +65,9 @@ public class SqliteRegionStorage implements RegionStorage
             if (resultSet.next())
             {
                 name = resultSet.getString("name");
+                if (name == null)
+                    return null;
+
                 UUID worldUUID = UUID.fromString(resultSet.getString("world_uuid"));
                 String firstPosition = resultSet.getString("first_position");
                 String secondPosition = resultSet.getString("second_position");
