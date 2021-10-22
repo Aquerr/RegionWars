@@ -4,6 +4,7 @@ package io.github.aquerr.regionwars.command;
 import io.github.aquerr.regionwars.RegionWarsPlugin;
 import io.github.aquerr.regionwars.command.region.ListRegionsCommand;
 import io.github.aquerr.regionwars.command.team.CreateTeamCommand;
+import io.github.aquerr.regionwars.command.team.ListTeamsCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,6 +30,7 @@ public class RegionWarsCommandManager implements CommandExecutor, TabCompleter
         commandsList.add(new WandCommand());
         commandsList.add(new ListRegionsCommand(plugin.getRegionService()));
         commandsList.add(new CreateTeamCommand(plugin.getTeamService()));
+        commandsList.add(new ListTeamsCommand(plugin.getTeamService()));
     }
 
     @Override
