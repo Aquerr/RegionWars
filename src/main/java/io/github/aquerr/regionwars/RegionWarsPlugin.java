@@ -5,6 +5,8 @@ import io.github.aquerr.regionwars.config.Configuration;
 import io.github.aquerr.regionwars.config.ConfigurationImpl;
 import io.github.aquerr.regionwars.service.RegionService;
 import io.github.aquerr.regionwars.service.RegionServiceImpl;
+import io.github.aquerr.regionwars.service.TeamService;
+import io.github.aquerr.regionwars.service.TeamServiceImpl;
 import io.github.aquerr.regionwars.storage.StorageManager;
 import io.github.aquerr.regionwars.storage.StorageManagerImpl;
 import org.bukkit.ChatColor;
@@ -20,6 +22,7 @@ public final class RegionWarsPlugin extends JavaPlugin
 
     private Configuration configuration;
     private RegionService regionService;
+    private TeamService teamService;
     private StorageManager storageManager;
 
     public static RegionWarsPlugin getInstance()
@@ -43,6 +46,7 @@ public final class RegionWarsPlugin extends JavaPlugin
     private void setupServices()
     {
         this.regionService = new RegionServiceImpl(this.storageManager.getRegionStorage());
+        this.teamService = new TeamServiceImpl(this.storageManager.getTeamStorage());
     }
 
     @Override
@@ -59,6 +63,11 @@ public final class RegionWarsPlugin extends JavaPlugin
     public RegionService getRegionService()
     {
         return regionService;
+    }
+
+    public TeamService getTeamService()
+    {
+        return teamService;
     }
 
     private void setupStorage()

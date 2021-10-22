@@ -5,11 +5,13 @@ import io.github.aquerr.regionwars.model.Region;
 import io.github.aquerr.regionwars.storage.database.Database;
 import io.github.aquerr.regionwars.storage.database.DatabaseProvider;
 import io.github.aquerr.regionwars.storage.sqlite.SqliteRegionStorage;
+import io.github.aquerr.regionwars.storage.sqlite.SqliteTeamStorage;
 
 public class StorageManagerImpl implements StorageManager
 {
     private final RegionWarsPlugin plugin;
     private final RegionStorage regionStorage;
+    private final TeamStorage teamStorage;
 
     public StorageManagerImpl(RegionWarsPlugin plugin)
     {
@@ -20,11 +22,13 @@ public class StorageManagerImpl implements StorageManager
             Database database = DatabaseProvider.getInstance().provide(plugin.getConfiguration().getSelectedStorageType());
             database.init();
             this.regionStorage = new SqliteRegionStorage(database);
+            this.teamStorage = new SqliteTeamStorage(database);
         }
         else
         {
             //TODO: Logic for file-based storage
             this.regionStorage = null;
+            this.teamStorage = null;
         }
     }
 
@@ -50,5 +54,11 @@ public class StorageManagerImpl implements StorageManager
     public RegionStorage getRegionStorage()
     {
         return regionStorage;
+    }
+
+    @Override
+    public TeamStorage getTeamStorage()
+    {
+        return this.teamStorage;
     }
 }

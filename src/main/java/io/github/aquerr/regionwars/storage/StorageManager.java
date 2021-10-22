@@ -11,4 +11,6 @@ public interface StorageManager
     void deleteRegion(String name);
 
     RegionStorage getRegionStorage();
+
+    TeamStorage getTeamStorage();
 }
