@@ -1,10 +1,10 @@
-package io.github.aquerr.regionwars.command.region;
+package io.github.aquerr.regionwars.command.team;
 
 import io.github.aquerr.regionwars.PluginPermissions;
 import io.github.aquerr.regionwars.command.CommandException;
 import io.github.aquerr.regionwars.command.RegionWarsCommand;
-import io.github.aquerr.regionwars.model.Region;
-import io.github.aquerr.regionwars.service.RegionService;
+import io.github.aquerr.regionwars.model.Team;
+import io.github.aquerr.regionwars.service.TeamService;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -12,28 +12,31 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.HumanEntity;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class ListRegionsCommand extends RegionWarsCommand
+public class ListTeamsCommand extends RegionWarsCommand
 {
-    private final RegionService regionService;
+    private final TeamService teamService;
 
-    public ListRegionsCommand(RegionService regionService)
+    public ListTeamsCommand(TeamService teamService)
     {
-        super("list_regions",
-                Set.of("list_regions"),
-                "Lists all regions",
-                PluginPermissions.LIST_REGIONS_COMMAND,
-                "/rw list_regions",
+        super("list_teams",
+                Set.of("list_teams"),
+                "Lists all teams",
+                PluginPermissions.LIST_TEAMS_COMMAND,
+                "/rw list_teams",
                 null);
-        this.regionService = regionService;
+        this.teamService = teamService;
     }
 
     @Override
@@ -46,37 +49,37 @@ public class ListRegionsCommand extends RegionWarsCommand
             page = Integer.parseInt(arguments[1]);
         }
 
-        final List<Region> regions = this.regionService.getRegions();
+        final List<Team> teams = this.teamService.getTeams();
 
         ComponentBuilder componentBuilder = new ComponentBuilder();
-        componentBuilder.append("==========").append(" Regions List ").color(ChatColor.GOLD).append("==========").color(ChatColor.RESET).append("\n");
+        componentBuilder.append("==========").append(" Teams List ").color(ChatColor.GOLD).append("==========").color(ChatColor.RESET).append("\n");
 
         int rows = 0;
         int totalpages = 1;
         final Map<Integer, List<BaseComponent>> pages = new TreeMap<>();
-        for (final Region region : regions)
+        for (final Team team : teams)
         {
             rows++;
 
             TextComponent dashComponent = new TextComponent("- ");
-            TextComponent regionComponent = new TextComponent(region.getName());
+            TextComponent teamComponent = new TextComponent(team.getName());
 
-            BaseComponent[] regionHoverTextComponents = new ComponentBuilder()
-                    .append("World UUID: ").color(ChatColor.GOLD)
-                    .append(region.getWorldUUID().toString() + "\n").color(ChatColor.WHITE)
-                    .append("First Position: ").color(ChatColor.GOLD)
-                    .append(region.getFirstPosition().toString() + "\n").color(ChatColor.WHITE)
-                    .append("Second Position: ").color(ChatColor.GOLD)
-                    .append(region.getSecondPosition().toString()).color(ChatColor.WHITE)
+            List<String> playerNames = team.getMembers().stream()
+                    .map(playerUUID -> Optional.ofNullable(Bukkit.getServer().getPlayer(playerUUID)).map(HumanEntity::getName).orElse(playerUUID.toString()))
+                    .toList();
+
+            BaseComponent[] teamHoverTextComponents = new ComponentBuilder()
+                    .append("Members: ").color(ChatColor.GOLD)
+                    .append(String.join(",", playerNames)).color(ChatColor.WHITE)
                     .create();
 
-            regionComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(regionHoverTextComponents)));
-            regionComponent.setColor(ChatColor.GOLD);
-            ComponentBuilder regionComponentBuilder = new ComponentBuilder();
-            regionComponentBuilder.append(dashComponent).append(regionComponent).append("\n");
-            BaseComponent[] regionBaseComponents = regionComponentBuilder.create();
+            teamComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(teamHoverTextComponents)));
+            teamComponent.setColor(ChatColor.GOLD);
+            ComponentBuilder teamComponentBuilder = new ComponentBuilder();
+            teamComponentBuilder.append(dashComponent).append(teamComponent).append("\n");
+            BaseComponent[] teamBaseComponents = teamComponentBuilder.create();
 
-            pages.merge(totalpages, Arrays.asList(regionBaseComponents), (baseComponents, baseComponents2) ->
+            pages.merge(totalpages, Arrays.asList(teamBaseComponents), (baseComponents, baseComponents2) ->
             {
                 baseComponents.addAll(baseComponents2);
                 return baseComponents;
@@ -94,11 +97,11 @@ public class ListRegionsCommand extends RegionWarsCommand
         final TextComponent previousPageTextComponent = new TextComponent("<");
         previousPageTextComponent.setUnderlined(true);
         previousPageTextComponent.setColor(ChatColor.BLUE);
-        previousPageTextComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/rw list_regions " + (page == 1 ? page : --page)));
+        previousPageTextComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/rw list_teams " + (page == 1 ? page : --page)));
         final TextComponent nextPageTextComponent = new TextComponent(">");
         nextPageTextComponent.setUnderlined(true);
         nextPageTextComponent.setColor(ChatColor.BLUE);
-        nextPageTextComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/rw list_regions " + (page == totalpages ? page : ++page)));
+        nextPageTextComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/rw list_teams " + (page == totalpages ? page : ++page)));
         componentBuilder.append(new TextComponent("=============="), ComponentBuilder.FormatRetention.NONE).append(previousPageTextComponent).append(" " + page + " ").underlined(false).append(nextPageTextComponent).append("==============").underlined(false).color(ChatColor.RESET);
 
         commandSender.spigot().sendMessage(componentBuilder.create());
