@@ -46,6 +46,7 @@ public class SqliteRegionStorage implements RegionStorage
                 Region region = new Region(name, worldUUID, Vector3i.from(firstPosition), Vector3i.from(secondPosition), active);
                 regions.add(region);
             }
+            resultSet.close();
         }
         catch (SQLException exception)
         {
