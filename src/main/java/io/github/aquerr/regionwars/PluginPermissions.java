@@ -8,4 +8,5 @@ public class PluginPermissions
     public static final String LIST_REGIONS_COMMAND = "regionwars.command.region.list";
     public static final String CREATE_TEAM_COMMAND = "regionwars.command.team.create";
     public static final String LIST_TEAMS_COMMAND = "regionwars.command.team.list";
+    public static final String DELETE_TEAM_COMMAND = "regionwars.command.team.delete";
 }
