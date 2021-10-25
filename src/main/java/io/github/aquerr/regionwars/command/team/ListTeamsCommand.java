@@ -1,5 +1,6 @@
 package io.github.aquerr.regionwars.command.team;
 
+import com.google.common.collect.ObjectArrays;
 import io.github.aquerr.regionwars.PluginPermissions;
 import io.github.aquerr.regionwars.command.CommandException;
 import io.github.aquerr.regionwars.command.RegionWarsCommand;
@@ -16,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +56,8 @@ public class ListTeamsCommand extends RegionWarsCommand
 
         int rows = 0;
         int totalpages = 1;
-        final Map<Integer, List<BaseComponent>> pages = new TreeMap<>();
+        final Map<Integer, BaseComponent[]> pages = new TreeMap<>();
+        pages.put(totalpages, new ComponentBuilder().append("").create()); // Initial empty page
         for (final Team team : teams)
         {
             rows++;
@@ -79,11 +80,7 @@ public class ListTeamsCommand extends RegionWarsCommand
             teamComponentBuilder.append(dashComponent).append(teamComponent).append("\n");
             BaseComponent[] teamBaseComponents = teamComponentBuilder.create();
 
-            pages.merge(totalpages, Arrays.asList(teamBaseComponents), (baseComponents, baseComponents2) ->
-            {
-                baseComponents.addAll(baseComponents2);
-                return baseComponents;
-            });
+            pages.merge(totalpages, teamBaseComponents, (baseComponents, baseComponents2) -> ObjectArrays.concat(baseComponents, baseComponents2, BaseComponent.class));
 
             if (rows == 6)
             {
@@ -92,7 +89,7 @@ public class ListTeamsCommand extends RegionWarsCommand
             }
         }
 
-        componentBuilder.append(pages.get(page).toArray(new BaseComponent[0]));
+        componentBuilder.append(pages.get(page));
 
         final TextComponent previousPageTextComponent = new TextComponent("<");
         previousPageTextComponent.setUnderlined(true);

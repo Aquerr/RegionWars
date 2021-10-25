@@ -1,5 +1,6 @@
 package io.github.aquerr.regionwars.command.region;
 
+import com.google.common.collect.ObjectArrays;
 import io.github.aquerr.regionwars.PluginPermissions;
 import io.github.aquerr.regionwars.command.CommandException;
 import io.github.aquerr.regionwars.command.RegionWarsCommand;
@@ -14,7 +15,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +53,8 @@ public class ListRegionsCommand extends RegionWarsCommand
 
         int rows = 0;
         int totalpages = 1;
-        final Map<Integer, List<BaseComponent>> pages = new TreeMap<>();
+        final Map<Integer, BaseComponent[]> pages = new TreeMap<>();
+        pages.put(totalpages, new ComponentBuilder().append("").create()); // Initial empty page
         for (final Region region : regions)
         {
             rows++;
@@ -76,11 +77,7 @@ public class ListRegionsCommand extends RegionWarsCommand
             regionComponentBuilder.append(dashComponent).append(regionComponent).append("\n");
             BaseComponent[] regionBaseComponents = regionComponentBuilder.create();
 
-            pages.merge(totalpages, Arrays.asList(regionBaseComponents), (baseComponents, baseComponents2) ->
-            {
-                baseComponents.addAll(baseComponents2);
-                return baseComponents;
-            });
+            pages.merge(totalpages, regionBaseComponents, (baseComponents, baseComponents2) -> ObjectArrays.concat(baseComponents, baseComponents2, BaseComponent.class));
 
             if (rows == 6)
             {
@@ -89,7 +86,7 @@ public class ListRegionsCommand extends RegionWarsCommand
             }
         }
 
-        componentBuilder.append(pages.get(page).toArray(new BaseComponent[0]));
+        componentBuilder.append(pages.get(page));
 
         final TextComponent previousPageTextComponent = new TextComponent("<");
         previousPageTextComponent.setUnderlined(true);

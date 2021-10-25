@@ -40,7 +40,6 @@ public class SqliteTeamStorage implements TeamStorage
         {
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_TEAMS);
             ResultSet resultSet = preparedStatement.executeQuery();
-            preparedStatement.close();
             while (resultSet.next())
             {
                 String teamName = resultSet.getString("name");
@@ -48,6 +47,7 @@ public class SqliteTeamStorage implements TeamStorage
                 getTeamMembers(connection, teamName).forEach(team::addMember);
                 teams.add(team);
             }
+            preparedStatement.close();
             resultSet.close();
         }
         catch (SQLException exception)
