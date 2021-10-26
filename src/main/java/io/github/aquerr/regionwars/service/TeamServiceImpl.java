@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import io.github.aquerr.regionwars.exception.TeamNotFoundException;
 import io.github.aquerr.regionwars.model.Team;
 import io.github.aquerr.regionwars.storage.TeamStorage;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,5 +76,13 @@ public class TeamServiceImpl implements TeamService
         }
 
         CompletableFuture.runAsync(() -> this.teamStorage.deleteTeam(name));
+    }
+
+    @Override
+    public Optional<Team> getTeamForPlayer(Player player)
+    {
+        return getTeams().stream()
+                .filter(team -> team.getMembers().contains(player.getUniqueId()))
+                .findFirst();
     }
 }
