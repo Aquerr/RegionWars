@@ -10,4 +10,5 @@ public class PluginPermissions
     public static final String LIST_TEAMS_COMMAND = "regionwars.command.team.list";
     public static final String DELETE_TEAM_COMMAND = "regionwars.command.team.delete";
     public static final String ADD_TEAM_MEMBER_COMMAND = "regionwars.command.team.addmember";
+    public static final String REMOVE_TEAM_MEMBER_COMMAND = "regionwars.command.team.removemember";
 }

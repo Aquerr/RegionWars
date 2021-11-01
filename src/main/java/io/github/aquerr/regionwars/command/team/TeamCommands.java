@@ -1,6 +1,5 @@
 package io.github.aquerr.regionwars.command.team;
 
-import io.github.aquerr.regionwars.PluginPermissions;
 import io.github.aquerr.regionwars.command.CommandException;
 import io.github.aquerr.regionwars.command.RegionWarsCommand;
 import io.github.aquerr.regionwars.model.Team;
@@ -31,7 +30,8 @@ public class TeamCommands extends RegionWarsCommand
                 "Team commands",
                 "",
                 "/rw team <team>",
-                Map.of(Set.of("add_member"), new AddTeamMemberCommand(teamService)));
+                Map.of(Set.of("add_member"), new AddTeamMemberCommand(teamService),
+                        Set.of("remove_member"), new RemoveTeamMemberCommand(teamService)));
         this.teamService = teamService;
     }
 
