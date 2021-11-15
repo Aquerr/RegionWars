@@ -3,6 +3,7 @@ package io.github.aquerr.regionwars.storage.sqlite;
 import io.github.aquerr.regionwars.model.Team;
 import io.github.aquerr.regionwars.storage.TeamStorage;
 import io.github.aquerr.regionwars.storage.database.Database;
+import net.md_5.bungee.api.ChatColor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,8 +20,8 @@ public class SqliteTeamStorage implements TeamStorage
     private static final String SELECT_ALL_TEAMS = "SELECT * FROM team";
     private static final String SELECT_TEAM_WHERE_NAME = "SELECT * FROM team WHERE name = ?";
     private static final String SELECT_TEAM_MEMBERS_WHERE_TEAM_NAME = "SELECT player_uuid FROM team_member WHERE team_name = ?";
-    private static final String INSERT_TEAM = "INSERT INTO team (name) VALUES (?)";
-    private static final String UPDATE_TEAM_WHERE_NAME = "UPDATE team SET name=? WHERE name=?";
+    private static final String INSERT_TEAM = "INSERT INTO team (name, color) VALUES (?, ?)";
+    private static final String UPDATE_TEAM_WHERE_NAME = "UPDATE team SET name=?, color=? WHERE name=?";
     private static final String DELETE_TEAM_WHERE_NAME = "DELETE FROM team WHERE name = ?";
     private static final String DELETE_TEAM_MEMBER_WHERE_PLAYER_UUID = "DELETE FROM team_member WHERE player_uuid = ?";
     private static final String INSERT_TEAM_MEMBER = "INSERT INTO team_member (team_name, player_uuid) VALUES (?, ?)";
@@ -43,7 +44,8 @@ public class SqliteTeamStorage implements TeamStorage
             while (resultSet.next())
             {
                 String teamName = resultSet.getString("name");
-                Team team = new Team(teamName);
+                String teamColor = resultSet.getString("color");
+                Team team = new Team(teamName, ChatColor.of(teamColor));
                 getTeamMembers(connection, teamName).forEach(team::addMember);
                 teams.add(team);
             }
@@ -63,6 +65,7 @@ public class SqliteTeamStorage implements TeamStorage
         try(Connection connection = this.database.getConnection())
         {
             String teamName = null;
+            ChatColor color = ChatColor.GREEN;
             try(PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TEAM_WHERE_NAME))
             {
                 preparedStatement.setString(1, name);
@@ -70,13 +73,14 @@ public class SqliteTeamStorage implements TeamStorage
                 if (resultSet.next())
                 {
                     name = resultSet.getString("name");
+                    color = ChatColor.of(resultSet.getString("color"));
                     teamName = name;
                 }
             }
             if (teamName == null)
                 return null;
 
-            Team team = new Team(teamName);
+            Team team = new Team(teamName, color);
             getTeamMembers(connection, teamName).forEach(team::addMember);
             return team;
         }
@@ -106,9 +110,10 @@ public class SqliteTeamStorage implements TeamStorage
             String query = isUpdate ? UPDATE_TEAM_WHERE_NAME : INSERT_TEAM;
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, team.getName());
+            preparedStatement.setString(2, team.getColor().getName());
 
             if (isUpdate)
-                preparedStatement.setString(2, team.getName());
+                preparedStatement.setString(3, team.getName());
 
             preparedStatement.executeUpdate();
             preparedStatement.close();

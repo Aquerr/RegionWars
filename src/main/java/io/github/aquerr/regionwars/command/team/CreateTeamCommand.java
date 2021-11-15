@@ -24,7 +24,7 @@ public class CreateTeamCommand extends RegionWarsCommand
                 Set.of("create_team"),
                 "Creates a region wars team",
                 PluginPermissions.CREATE_TEAM_COMMAND,
-                "/rw create_team <name>",
+                "/rw create_team <name> <color>",
                 null);
         this.teamService = teamService;
     }
@@ -33,20 +33,22 @@ public class CreateTeamCommand extends RegionWarsCommand
     public boolean execute(CommandSender commandSender, String[] arguments) throws CommandException
     {
         String teamName;
-        if (arguments.length > 1)
+        String teamColor;
+        if (arguments.length > 2)
         {
             teamName = arguments[1];
+            teamColor = arguments[2];
         }
         else
         {
-            throw new CommandException("You need to provide team's name!");
+            throw new CommandException("You need to provide team's name and its color!");
         }
 
         // Check if team already exists
         if (teamService.getTeam(teamName).isPresent())
             throw new CommandException("This name is already occupied by another team!");
 
-        this.teamService.saveTeam(new Team(teamName));
+        this.teamService.saveTeam(new Team(teamName, ChatColor.of(teamColor)));
         commandSender.spigot().sendMessage(new ComponentBuilder().append(RegionWarsPlugin.PLUGIN_PREFIX).append("Team has been created!").color(ChatColor.GREEN).create());
 
         return true;

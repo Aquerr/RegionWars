@@ -2,7 +2,6 @@ package io.github.aquerr.regionwars.command;
 
 import io.github.aquerr.regionwars.PluginPermissions;
 import io.github.aquerr.regionwars.RegionWarsPlugin;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
