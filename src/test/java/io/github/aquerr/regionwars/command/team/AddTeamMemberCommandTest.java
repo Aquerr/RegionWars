@@ -35,6 +35,8 @@ class AddTeamMemberCommandTest
     private static final String PLAYER_NAME = "PlayerName";
     private static final String PLAYER_NAME_2 = "NextName";
 
+    private static final ChatColor GREEN_TEAM_COLOR = ChatColor.GREEN;
+
     @Mock
     private Player player;
 
@@ -68,7 +70,7 @@ class AddTeamMemberCommandTest
         {
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(null);
 
-            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
+            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME}));
             assertThat(throwable).isInstanceOf(CommandException.class);
         }
 
@@ -78,7 +80,7 @@ class AddTeamMemberCommandTest
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(player);
             given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.empty());
 
-            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
+            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME}));
             assertThat(throwable).isInstanceOf(CommandException.class);
         }
 
@@ -86,10 +88,10 @@ class AddTeamMemberCommandTest
         void executeThrowsCommandExceptionWhenGivenPlayerIsAlreadyInATeam()
         {
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(player);
-            given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(new Team(TEAM_NAME)));
-            given(teamService.getTeamForPlayer(player)).willReturn(Optional.of(new Team(TEAM_NAME_2)));
+            given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(new Team(TEAM_NAME, GREEN_TEAM_COLOR)));
+            given(teamService.getTeamForPlayer(player)).willReturn(Optional.of(new Team(TEAM_NAME_2, GREEN_TEAM_COLOR)));
 
-            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
+            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME}));
             assertThat(throwable).isInstanceOf(CommandException.class);
         }
 
@@ -100,7 +102,7 @@ class AddTeamMemberCommandTest
 
             String playerName = "Player";
             UUID playerUUID = UUID.randomUUID();
-            Team team = new Team(TEAM_NAME);
+            Team team = new Team(TEAM_NAME, GREEN_TEAM_COLOR);
             given(player.getName()).willReturn(playerName);
             given(player.getUniqueId()).willReturn(playerUUID);
             given(commandSender.spigot()).willReturn(commandSenderSpigot);
@@ -108,7 +110,7 @@ class AddTeamMemberCommandTest
             given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(team));
             given(teamService.getTeamForPlayer(player)).willReturn(Optional.empty());
 
-            addTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME});
+            addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME});
 
             assertThat(team.getMembers()).contains(playerUUID);
             verify(teamService).saveTeam(team);
@@ -124,9 +126,9 @@ class AddTeamMemberCommandTest
         void tabCompleteReturnsOnlinePlayersThatNameStartWithGivenArgumentWhenArgumentCountIs4()
         {
             Collection<? extends Player> players = List.of(prepareMockPlayer(PLAYER_NAME), prepareMockPlayer(PLAYER_NAME_2));
-            given(TestBukkit.getServer().getOnlinePlayers()).willReturn((Collection)players);
+            given(TestBukkit.getServer().getOnlinePlayers()).willReturn((Collection) players);
 
-            List<String> playerNames = addTeamMemberCommand.tabComplete(commandSender, new String[] {"team", TEAM_NAME, "add_member", "player"});
+            List<String> playerNames = addTeamMemberCommand.tabComplete(commandSender, new String[]{"team", TEAM_NAME, "add_member", "player"});
 
             assertThat(playerNames).hasSize(1);
             assertThat(playerNames.get(0)).isEqualTo(PLAYER_NAME);
@@ -136,9 +138,9 @@ class AddTeamMemberCommandTest
         void tabCompleteReturnsOnlinePlayerListWhenArgumentsCountIsNot4()
         {
             Collection<? extends Player> players = List.of(prepareMockPlayer(PLAYER_NAME), prepareMockPlayer(PLAYER_NAME_2));
-            given(TestBukkit.getServer().getOnlinePlayers()).willReturn((Collection)players);
+            given(TestBukkit.getServer().getOnlinePlayers()).willReturn((Collection) players);
 
-            List<String> playerNames = addTeamMemberCommand.tabComplete(commandSender, new String[] {"team", TEAM_NAME, "add_member"});
+            List<String> playerNames = addTeamMemberCommand.tabComplete(commandSender, new String[]{"team", TEAM_NAME, "add_member"});
 
             assertThat(playerNames).hasSize(2);
             assertThat(playerNames.get(0)).isEqualTo(PLAYER_NAME);

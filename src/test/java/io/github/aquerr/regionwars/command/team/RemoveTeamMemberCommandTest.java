@@ -36,6 +36,8 @@ class RemoveTeamMemberCommandTest
     private static final String PLAYER_NAME = "PlayerName";
     private static final String PLAYER_NAME_2 = "NextName";
 
+    private static final ChatColor GREEN_TEAM_COLOR = ChatColor.GREEN;
+
     @Mock
     private Player player;
 
@@ -87,7 +89,7 @@ class RemoveTeamMemberCommandTest
         void executeThrowsCommandExceptionWhenGivenPlayerIsNotInATeam()
         {
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(player);
-            given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(new Team(TEAM_NAME)));
+            given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(new Team(TEAM_NAME, GREEN_TEAM_COLOR)));
             given(teamService.getTeamForPlayer(player)).willReturn(Optional.empty());
 
             Throwable throwable = catchThrowable(() -> removeTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
@@ -101,7 +103,7 @@ class RemoveTeamMemberCommandTest
 
             String playerName = "Player";
             UUID playerUUID = UUID.randomUUID();
-            Team team = new Team(TEAM_NAME);
+            Team team = new Team(TEAM_NAME, GREEN_TEAM_COLOR);
             given(player.getName()).willReturn(playerName);
             given(player.getUniqueId()).willReturn(playerUUID);
             given(commandSender.spigot()).willReturn(commandSenderSpigot);
@@ -124,7 +126,7 @@ class RemoveTeamMemberCommandTest
         @Test
         void tabCompleteReturnsPlayersFromTeamThatNameStartWithGivenArgumentWhenArgumentCountIs4()
         {
-            Team team = new Team(TEAM_NAME);
+            Team team = new Team(TEAM_NAME, GREEN_TEAM_COLOR);
             UUID playerUUID = UUID.randomUUID();
             team.addMember(playerUUID);
             given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(team));

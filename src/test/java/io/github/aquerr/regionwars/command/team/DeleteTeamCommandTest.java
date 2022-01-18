@@ -31,6 +31,8 @@ class DeleteTeamCommandTest
     private static final String TEAM_NAME = "teamname";
     private static final String TEAM_NAME_2 = "custom2";
 
+    private static final ChatColor GREEN_TEAM_COLOR = ChatColor.GREEN;
+
     @Mock
     private TeamService teamService;
 
@@ -63,7 +65,7 @@ class DeleteTeamCommandTest
     void tabCompleteDoesNotReturnAnyTeamIfPrefixDoesNotMatchAnyTeam()
     {
         // given
-        given(teamService.getTeams()).willReturn(List.of(new Team(TEAM_NAME), new Team(TEAM_NAME_2)));
+        given(teamService.getTeams()).willReturn(List.of(new Team(TEAM_NAME, GREEN_TEAM_COLOR), new Team(TEAM_NAME_2, GREEN_TEAM_COLOR)));
 
         // when
         final List<String> tabCompletions = deleteTeamCommand.tabComplete(commandSender, new String[]{"delete_team", "yolo"});
@@ -115,7 +117,7 @@ class DeleteTeamCommandTest
 
     private Team prepareTeam()
     {
-        return new Team(TEAM_NAME);
+        return new Team(TEAM_NAME, GREEN_TEAM_COLOR);
     }
 
     private BaseComponent[] prepareDeleteMessage()

@@ -3,12 +3,14 @@ package io.github.aquerr.regionwars;
 import io.github.aquerr.regionwars.command.RegionWarsCommandManager;
 import io.github.aquerr.regionwars.config.Configuration;
 import io.github.aquerr.regionwars.config.ConfigurationImpl;
+import io.github.aquerr.regionwars.eventhandler.ChatMessageEventHandler;
 import io.github.aquerr.regionwars.service.RegionService;
 import io.github.aquerr.regionwars.service.RegionServiceImpl;
 import io.github.aquerr.regionwars.service.TeamService;
 import io.github.aquerr.regionwars.service.TeamServiceImpl;
 import io.github.aquerr.regionwars.storage.StorageManager;
 import io.github.aquerr.regionwars.storage.StorageManagerImpl;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,6 +43,12 @@ public final class RegionWarsPlugin extends JavaPlugin
         setupStorage();
         setupServices();
         setupCommandSystem();
+        setupListeners();
+    }
+
+    private void setupListeners()
+    {
+        Bukkit.getPluginManager().registerEvents(new ChatMessageEventHandler(this.getTeamService()), this);
     }
 
     private void setupServices()

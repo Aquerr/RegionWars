@@ -1,0 +1,3 @@
+ALTER TABLE team ADD COLUMN color TEXT NOT NULL DEFAULT 'green';
+
+INSERT INTO version (version) VALUES (3);
