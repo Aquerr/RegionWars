@@ -8,6 +8,7 @@ import io.github.aquerr.regionwars.service.TeamService;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.openMocks;
 
-class AddTeamMemberCommandTest
+class RemoveTeamMemberCommandTest
 {
     private static final String TEAM_NAME = "TeamName";
     private static final String TEAM_NAME_2 = "TeamName2";
@@ -47,7 +48,7 @@ class AddTeamMemberCommandTest
     private CommandSender commandSender;
 
     @InjectMocks
-    private AddTeamMemberCommand addTeamMemberCommand;
+    private RemoveTeamMemberCommand removeTeamMemberCommand;
 
     @BeforeEach
     public void setUp()
@@ -61,7 +62,7 @@ class AddTeamMemberCommandTest
         @Test
         void executeThrowsCommandExceptionWhenArgumentCountIsNotEqualTo4()
         {
-            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[]{}));
+            Throwable throwable = catchThrowable(() -> removeTeamMemberCommand.execute(commandSender, new String[]{}));
             assertThat(throwable).isInstanceOf(CommandException.class);
         }
 
@@ -70,7 +71,7 @@ class AddTeamMemberCommandTest
         {
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(null);
 
-            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME}));
+            Throwable throwable = catchThrowable(() -> removeTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
             assertThat(throwable).isInstanceOf(CommandException.class);
         }
 
@@ -80,23 +81,23 @@ class AddTeamMemberCommandTest
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(player);
             given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.empty());
 
-            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME}));
+            Throwable throwable = catchThrowable(() -> removeTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
             assertThat(throwable).isInstanceOf(CommandException.class);
         }
 
         @Test
-        void executeThrowsCommandExceptionWhenGivenPlayerIsAlreadyInATeam()
+        void executeThrowsCommandExceptionWhenGivenPlayerIsNotInATeam()
         {
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(player);
             given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(new Team(TEAM_NAME, GREEN_TEAM_COLOR)));
-            given(teamService.getTeamForPlayer(player)).willReturn(Optional.of(new Team(TEAM_NAME_2, GREEN_TEAM_COLOR)));
+            given(teamService.getTeamForPlayer(player)).willReturn(Optional.empty());
 
-            Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME}));
+            Throwable throwable = catchThrowable(() -> removeTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
             assertThat(throwable).isInstanceOf(CommandException.class);
         }
 
         @Test
-        void executeAddsPlayerToTeamAndSavesTheTeam() throws CommandException
+        void executeRemovesPlayerFromTeamAndSavesTheTeam() throws CommandException
         {
             CommandSender.Spigot commandSenderSpigot = Mockito.mock(CommandSender.Spigot.class);
 
@@ -108,14 +109,14 @@ class AddTeamMemberCommandTest
             given(commandSender.spigot()).willReturn(commandSenderSpigot);
             given(TestBukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(player);
             given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(team));
-            given(teamService.getTeamForPlayer(player)).willReturn(Optional.empty());
+            given(teamService.getTeamForPlayer(player)).willReturn(Optional.of(team));
 
-            addTeamMemberCommand.execute(commandSender, new String[]{"team", TEAM_NAME, "add_member", PLAYER_NAME});
+            removeTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "remove_member", PLAYER_NAME});
 
-            assertThat(team.getMembers()).contains(playerUUID);
+            assertThat(team.getMembers()).doesNotContain(playerUUID);
             verify(teamService).saveTeam(team);
             verify(commandSender).spigot();
-            verify(commandSenderSpigot).sendMessage(prepareMemberAddedMessage(player.getName(), team.getName()));
+            verify(commandSenderSpigot).sendMessage(prepareMemberRemovedMessage(player.getName(), team.getName()));
         }
     }
 
@@ -123,12 +124,16 @@ class AddTeamMemberCommandTest
     class TabCompleteTests
     {
         @Test
-        void tabCompleteReturnsOnlinePlayersThatNameStartWithGivenArgumentWhenArgumentCountIs4()
+        void tabCompleteReturnsPlayersFromTeamThatNameStartWithGivenArgumentWhenArgumentCountIs4()
         {
-            Collection<? extends Player> players = List.of(prepareMockPlayer(PLAYER_NAME), prepareMockPlayer(PLAYER_NAME_2));
-            given(TestBukkit.getServer().getOnlinePlayers()).willReturn((Collection) players);
+            Team team = new Team(TEAM_NAME, GREEN_TEAM_COLOR);
+            UUID playerUUID = UUID.randomUUID();
+            team.addMember(playerUUID);
+            given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(team));
+            OfflinePlayer teamPlayer = prepareMockOfflinePlayer(PLAYER_NAME);
+            given(TestBukkit.getServer().getOfflinePlayer(playerUUID)).willReturn(teamPlayer);
 
-            List<String> playerNames = addTeamMemberCommand.tabComplete(commandSender, new String[]{"team", TEAM_NAME, "add_member", "player"});
+            List<String> playerNames = removeTeamMemberCommand.tabComplete(commandSender, new String[] {"team", TEAM_NAME, "remove_member", "player"});
 
             assertThat(playerNames).hasSize(1);
             assertThat(playerNames.get(0)).isEqualTo(PLAYER_NAME);
@@ -138,9 +143,9 @@ class AddTeamMemberCommandTest
         void tabCompleteReturnsOnlinePlayerListWhenArgumentsCountIsNot4()
         {
             Collection<? extends Player> players = List.of(prepareMockPlayer(PLAYER_NAME), prepareMockPlayer(PLAYER_NAME_2));
-            given(TestBukkit.getServer().getOnlinePlayers()).willReturn((Collection) players);
+            given(TestBukkit.getServer().getOnlinePlayers()).willReturn((Collection)players);
 
-            List<String> playerNames = addTeamMemberCommand.tabComplete(commandSender, new String[]{"team", TEAM_NAME, "add_member"});
+            List<String> playerNames = removeTeamMemberCommand.tabComplete(commandSender, new String[] {"team", TEAM_NAME, "add_member"});
 
             assertThat(playerNames).hasSize(2);
             assertThat(playerNames.get(0)).isEqualTo(PLAYER_NAME);
@@ -148,13 +153,20 @@ class AddTeamMemberCommandTest
         }
     }
 
-    private BaseComponent[] prepareMemberAddedMessage(String playerName, String teamName)
+    private BaseComponent[] prepareMemberRemovedMessage(String playerName, String teamName)
     {
         return new ComponentBuilder()
                 .append(RegionWarsPlugin.PLUGIN_PREFIX)
-                .append("Player " + playerName + " has been added to the team " + teamName + "!")
+                .append("Player " + playerName + " has been removed from the team " + teamName + "!")
                 .color(ChatColor.GREEN)
                 .create();
+    }
+
+    private OfflinePlayer prepareMockOfflinePlayer(String playerName)
+    {
+        OfflinePlayer offlinePlayer = Mockito.mock(OfflinePlayer.class);
+        given(offlinePlayer.getName()).willReturn(playerName);
+        return offlinePlayer;
     }
 
     private Player prepareMockPlayer(String playerName)

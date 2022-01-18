@@ -6,6 +6,7 @@ import io.github.aquerr.regionwars.command.region.ListRegionsCommand;
 import io.github.aquerr.regionwars.command.team.CreateTeamCommand;
 import io.github.aquerr.regionwars.command.team.DeleteTeamCommand;
 import io.github.aquerr.regionwars.command.team.ListTeamsCommand;
+import io.github.aquerr.regionwars.command.team.RemoveTeamMemberCommand;
 import io.github.aquerr.regionwars.command.team.TeamCommands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
