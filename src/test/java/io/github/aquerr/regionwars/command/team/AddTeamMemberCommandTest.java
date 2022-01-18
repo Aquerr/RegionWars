@@ -38,6 +38,8 @@ class AddTeamMemberCommandTest
     private static final String PLAYER_NAME = "PlayerName";
     private static final String PLAYER_NAME_2 = "NextName";
 
+    private static final ChatColor GREEN_TEAM_COLOR = ChatColor.GREEN;
+
     @Mock
     private Player player;
 
@@ -98,8 +100,8 @@ class AddTeamMemberCommandTest
         void executeThrowsCommandExceptionWhenGivenPlayerIsAlreadyInATeam()
         {
             given(Bukkit.getServer().getPlayer(PLAYER_NAME)).willReturn(player);
-            given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(new Team(TEAM_NAME)));
-            given(teamService.getTeamForPlayer(player)).willReturn(Optional.of(new Team(TEAM_NAME_2)));
+            given(teamService.getTeam(TEAM_NAME)).willReturn(Optional.of(new Team(TEAM_NAME, GREEN_TEAM_COLOR)));
+            given(teamService.getTeamForPlayer(player)).willReturn(Optional.of(new Team(TEAM_NAME_2, GREEN_TEAM_COLOR)));
 
             Throwable throwable = catchThrowable(() -> addTeamMemberCommand.execute(commandSender, new String[] {"team", TEAM_NAME, "add_member", PLAYER_NAME}));
             assertThat(throwable).isInstanceOf(CommandException.class);
@@ -112,7 +114,7 @@ class AddTeamMemberCommandTest
 
             String playerName = "Player";
             UUID playerUUID = UUID.randomUUID();
-            Team team = new Team(TEAM_NAME);
+            Team team = new Team(TEAM_NAME, GREEN_TEAM_COLOR);
             given(player.getName()).willReturn(playerName);
             given(player.getUniqueId()).willReturn(playerUUID);
             given(commandSender.spigot()).willReturn(commandSenderSpigot);
